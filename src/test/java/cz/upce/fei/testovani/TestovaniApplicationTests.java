@@ -32,7 +32,7 @@ class TestovaniApplicationTests {
     }
 
     @Test
-    void postUser_whenUserIsValid_recieveOk() {
+    void postUser_whenUserIsValid_receiveOk() {
         User user = createUser();
 
         ResponseEntity<Object> response = testRestTemplate.postForEntity(API_1_0_USERS, user, Object.class);
@@ -94,6 +94,118 @@ class TestovaniApplicationTests {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
+    // Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character:
+    @Test
+    void postUser_whenUserHasTooShortPassword_receivedBadRequest() {
+        User user = createUser();
+        user.setPassword("Ab1@");
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void postUser_whenUserHasPasswordMissingUppercaseLetter_receivedBadRequest() {
+        User user = createUser();
+        user.setPassword("ab1@$1234");
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void postUser_whenUserHasPasswordMissingLowercaseLetter_receivedBadRequest() {
+        User user = createUser();
+        user.setPassword("AB1@$1234");
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void postUser_whenUserHasPasswordMissingNumber_receivedBadRequest() {
+        User user = createUser();
+        user.setPassword("ABa@$cDeF");
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void postUser_whenUserHasPasswordMissingSpecialCharacter_receivedBadRequest() {
+        User user = createUser();
+        user.setPassword("AB1ab1234");
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void postUser_whenUserHasFinePassword_receiveOk() {
+        User user = createUser();
+        user.setPassword("AB1@b1234");
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test void postUser_whenUserHasEmptyUsername_receivedBadRequest(){
+        User user = createUser();
+        user.setUsername("");
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test void postUser_whenUserHasTooLongUsername_receivedBadRequest(){
+        User user = createUser();
+        user.setUsername("some-very-very-very-very-very-very-very-long-username");
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test void postUser_whenUserHasOkUsername_receiveOk(){
+        User user = createUser();
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test void postUser_whenUserHasEmptyDisplayname_receivedBadRequest(){
+        User user = createUser();
+        user.setDisplayname("");
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test void postUser_whenUserHasTooLongDisplayname_receivedBadRequest(){
+        User user = createUser();
+        user.setDisplayname("some-very-very-very-very-very-very-very-long-displayname");
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test void postUser_whenUserHasOkDisplayname_receiveOk(){
+        User user = createUser();
+
+        ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
 
     // TODO Pomoci dalsich constraint z odkazu https://beanvalidation.org/2.0/spec/ osetrete dalsi
     // vhodne hodnoty - napr. min. a max. delku uzivatelskeho jmena, slozeni hesla apod.
@@ -103,7 +215,7 @@ class TestovaniApplicationTests {
         User user = new User();
         user.setUsername("test-user");
         user.setDisplayname("test-user");
-        user.setPassword("P4ssword");
+        user.setPassword("@P4ssword");
         return user;
     }
 
